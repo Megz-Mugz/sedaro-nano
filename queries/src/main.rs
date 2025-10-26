@@ -1,17 +1,16 @@
+#![allow(warnings)]
+
 use std::io;
+mod lexer;
+mod token_category;
+mod parser;
+
+use lexer::{tokenize_query, Token};
+
+use crate::parser::Parser;
 
 fn main() {
-    // let input =
-    //     read_to_string(stdin()).unwrap_or_else(|err| panic!("Could not read input stream! {err}"));
-    // let parser = grammar::QueryParser::new();
-    // let query = parser
-    //     .parse(&input)
-    //     .unwrap_or_else(|err| panic!("Could not parse input! {err}"));
-    // let output = serde_json::to_string(&query).unwrap();
-
-
     // production rules:
-
     // 1. Query → "prev!" "(" Query ")"
     // 2. Query → "root!"
     // 3. Query → "agent!" "(" ID ")"
@@ -26,32 +25,35 @@ fn main() {
     // 1. Lexical analysis (tokenization):
     //    - Break the input into tokens like <category, lexeme> pairs.
     //    - Validate that each token matches valid lexical patterns.
-    //
+
+    println!("Please enter your query or queries of choice: ");
+
+    let mut user_query: String = String::new();
+    let mut tokens: Vec<Token> = Vec::new();
+
+    io::stdin().read_line(&mut user_query).expect("Failed to read line");
+
+    tokenize_query(&user_query, &mut tokens);
+
+    
+    // for token in &tokens {
+    //     print!("{:?}\n", token);
+    // }
+    
     // 2. Parsing (syntactic analysis):
     //    - Validate that the sequence of tokens conforms to the grammar (syntactic correctness).
     //    - Only if the syntax is valid, construct the parse tree (AST structure begins here).
-    //
-    // 3. Semantic analysis:
-    //    - Traverse the AST to ensure it makes logical sense (semantic correctness).
-    //    - Example: check that identifiers exist, types match, and operator usage is valid.
-    //
+    let mut parser= Parser::new(tokens);
+    parser.parse_query();
+
+    // going to skip semantic analysis for now
+    
+    
     // 4. Serialization:
     //    - Convert the final AST into JSON or another intermediate representation.
     //
     // 5. Output:
     //    - Save the serialized AST as `output.ast` (or pass it to a backend for code generation).
 
-    println!("Please enter your query or queries of choice:\n");
-
-    let mut user_query = String::new();
-
-
-    io::stdin()
-    .read_line(&mut user_query)
-    .expect("Failed to read line");
-
-    
-
-    print!("Your query was: {}", user_query);
 
 }
