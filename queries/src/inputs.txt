@@ -23,4 +23,4 @@ agent!()
 
 agent(rohan)
 
-prev!(agent!(x).name), agent!(z),
+prev!(agent!(x).name), agent!(z), (note: this query has a trailing comma, which should not be allowed as per production rules)

@@ -1,0 +1,89 @@
+Here is an overview of what I built for the sedaro-nano application:
+
+At a high level, I turned the current language from an interpreted language to a 
+compiled language. In more granular detail, a user can now write in a query in the command line, such as 
+"agent!(x).data" and depending on if it is a valid query (which in this case it is), 
+it will get tokenized, and parsed into an intermediate representation - in this case a
+Abstract Syntax Tree (AST). I then serialized the AST into a .json format, which can be
+used by other modules of the software as an executable. 
+
+Suppose the query you enter is invalid, in that case it will generate a compilation error and NOT
+create the executable_query.json file. 
+
+Given the query language was right recursive & to keep the code intuitive, I decided to go with a top-down, 
+recursive descent parsing approach. 
+
+Why did I choose this project?
+
+I chose this project because of the potential business impact it could have. When you have an interpreted language, 
+by nature of how interpreted languages work where they read in source code as it shows up, you are more prone to 
+runtime errors. My solution not only leads to less runtime errors, but will indirectly help with the following areas:
+
+1. Less production errors, leading to a better user experience and avoiding the app crashing for the end user
+2. Since all the validation would ideally be done on the compiler side, you won't have to validate input at runtime, 
+this leads to much better separation of concerns among the different modules of the application, therefore improving 
+software maintainability. 
+3. While this might be trivial for the end user, with a compiled query language, we give ourselves the option to optimize the 
+users query for better performance. For example, if the user does gives a list of 5 queries, but 2 of the queries do the same thing, 
+we can optimize for this to save work, leading to a slight boost in performance. 
+
+The following is a list of files I touched and an overview of the changes I made:
+
+1. main.rs - reorganized it so it implemented my compilation logic
+2. token_category.rs - enum for the different categories of tokens you can come across in the language. 
+3. lexer.rs - tokenized the query with tokens in the format of <TokenCategory, Lexeme>
+4. parser.rs - the tokens created from the lexer were passed into the parser file and 
+were used to create the AST. 
+5. ast.rs - enum for the ASTNode
+6. inputs.txt - a list of valid and invalid queries that you can run. 
+
+Here is how to setup and run the code I wrote (the screenshots I refer to are in the screenshots directory in 
+the queries folder):
+
+1. Change directory into the queries folder.
+2. Once in the queries folder, simply run "cargo build", you should get an something looking like "cargo_build.png"
+3. From there, you can type "cargo run" and you should now see a prompt for user input (see cargo_run.png)
+4. Now, you can copy paste the following query from inputs.txt:
+
+(prev!(agent!(x).name), root!, agent!(z))
+
+Note: You can do step #4 with any string, but just for demonstration purposes I included an inputs.txt file with specific inputs
+and their expected outcome. 
+
+5. If you used the exact query mentioned from step #4: (prev!(agent!(x).name), root!, agent!(z)), you should see a successful run. 
+This should look identical to successful_run.png. 
+
+6. Notice the last line in the output says "Serialized AST - written to executable_query.json". You can open up 
+executable_query.json, and you will find well formatted .json file with your annotated query. See executable_query.png 
+for what this should look like. 
+
+7. Suppose you try one of the invalid queries from the inputs.txt file, an unsuccessful query will not create the executable_query.json file, 
+and instead result in an error similar to unsuccessful_compilation.png
+
+Improvements:
+
+While no software is perfect, I acknowledge my solution still has improvements to be in order to be 
+ready for production. 
+
+The biggest improvement that can be made is after the parsing stage and before the serializing phase, there
+should be a semantic analysis phase where one can traverse the generated AST and decide if the query is meaningful. 
+As it relates to a the business problem, we should ensure any identifiers are valid identifiers that actually exist. 
+For example, doing "agent!(x)" should fail in the semantic analysis phase if "x" is not the name of an agent. 
+Currently, I check to see if the string "x" is a valid identifier name, and I also check if after typing "agent!", 
+do we get a left parenthesis & an identifier, however, I do not check to see if "x" is a valid agent name. 
+
+Similar to how the Rust compiler gives detailed feedback as to why one's code did not compile, I could integrate something 
+similar to here explain why a query was invalid. This would lead to a better user experience, since they wouldn't have to constantly
+refer back to the language's documentation. 
+
+As with any software, having unit tests with a high code coverage would be ideal, especially in regards to tokenizing symbols 
+and parsing the query. 
+
+Next steps:
+
+Some potential next steps for this project are to create an optimizing phase for the compiler to improve query performance,
+including caching redundant queries, and handling subqueries. From some research I did into this, making efficient queries that 
+deal with subqueries in any relational database manager is a challenge. 
+
+Ideally, what should happen is that the user can give the compiler a very inefficient query with lots of nested subqueries, and with 
+how the compiler is created, we can make the user's query perform the same as if they gave us an ideally formatted query. 
