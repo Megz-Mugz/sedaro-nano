@@ -1,0 +1,26 @@
+Queries that should work:
+
+root!
+
+agent!(x)
+
+agent!(x).name
+
+prev!(agent!(x).name)
+
+(prev!(agent!(x).name), root!, agent!(z))
+
+prev!(agent!(x).name), agent!(z) 
+
+
+Invalid queries:
+
+agent!(x
+
+agent!()
+
+()
+
+agent(rohan)
+
+prev!(agent!(x).name), agent!(z),
